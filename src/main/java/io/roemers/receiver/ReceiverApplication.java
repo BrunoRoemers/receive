@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RestController
-@SpringBootApplication
+@SpringBootApplication(proxyBeanMethods = false)
 public class ReceiverApplication {
 
 	public static void main(String[] args) {

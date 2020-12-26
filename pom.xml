@@ -15,8 +15,17 @@
 	<description>Receive data and store on file system</description>
 
 	<properties>
-		<java.version>11</java.version>
-	</properties>
+    <java.version>11</java.version>
+    <graalvm.version>20.3.0</graalvm.version>
+  </properties>
+  
+  <repositories>
+      <repository>
+          <id>spring-milestone</id>
+          <name>Spring milestone</name>
+          <url>https://repo.spring.io/milestone</url>
+      </repository>
+  </repositories>
 
 	<dependencies>
 		<dependency>
@@ -34,7 +43,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.springframework.experimental</groupId>
+      <artifactId>spring-graalvm-native</artifactId>
+      <version>0.8.5</version>
+    </dependency>
 	</dependencies>
 
 	<build>
@@ -44,6 +59,43 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-	</build>
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>native</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.nativeimage</groupId>
+            <artifactId>native-image-maven-plugin</artifactId>
+            <version>${graalvm.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>native-image</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <skip>false</skip>
+              <imageName>receiver</imageName>
+              <mainClass>io.roemers.receiver.ReceiverApplication</mainClass>
+              <buildArgs>
+                --no-fallback
+                -Dspring.native.remove-yaml-support=true
+                -Dspring.spel.ignore=true
+              </buildArgs>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
