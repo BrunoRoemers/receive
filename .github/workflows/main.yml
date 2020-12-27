@@ -20,10 +20,8 @@ jobs:
       uses: actions/checkout@v2
     - name: 'Set BUILD_REF'
       run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-    - name: 'Set RELEASE_ID'
-      run: echo "RELEASE_ID=${{github.event.release.release_id}}" >> $GITHUB_ENV
     - name: 'Set UPLOAD_URL'
-      if: contains(env.GITHUB_REF, 'tags')
+      if: contains(github.ref, 'tags')
       run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*assets")" >> $GITHUB_ENV
     - name: 'Echo vars'
       run: echo $BUILD_REF && echo $RELEASE_ID && echo $UPLOAD_URL
