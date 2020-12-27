@@ -10,10 +10,10 @@ on:
 #  push:
 
 jobs:
-  test-upload:
+  build-native-unix:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{matrix.os}}
     steps:
     - name: 'Checkout'
@@ -22,14 +22,16 @@ jobs:
       run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - name: 'Set UPLOAD_URL'
       if: contains(github.ref, 'tags')
-      run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep upload_url | grep -o "http.*}")" >> $GITHUB_ENV
+      run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
+    - name: 'Set ARTIFACT_NAME'
+      run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{matrix.os}}" >> $GITHUB_ENV
     - name: 'TEMP: dummy file'
       run: mkdir target && echo 'dummy file' > target/receiver
     - name: 'Upload as Artifact'
       if: success()
       uses: actions/upload-artifact@v2
       with:
-        name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        name: ${{env.ARTIFACT_NAME}}
         path: target/receiver
     - name: 'Upload as Release Asset'
       if: success() && env.UPLOAD_URL
@@ -38,7 +40,7 @@ jobs:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
         upload_url: ${{env.UPLOAD_URL}}
-        asset_name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        asset_name: ${{env.ARTIFACT_NAME}}
         asset_path: target/receiver
         asset_content_type: application/octet-stream
 
