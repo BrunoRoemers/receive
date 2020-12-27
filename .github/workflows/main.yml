@@ -1,0 +1,27 @@
+name: Build Native Images
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build-native:
+    strategy:
+      matrix:
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest]
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+      - name: 'Setup GraalVM'
+        uses: DeLaGuardo/setup-graalvm@master
+        with:
+          graalvm-version: 20.3.0.java11
+      - name: 'Install native-image'
+        run: gu install native-image
+      - name: 'Print Version Info'
+        run: java -version && gu list -v && mvn --version
+      - name: 'Build Linux Image'
+          run: mvn --batch-mode -Pnative clean package
