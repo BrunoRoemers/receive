@@ -15,11 +15,11 @@ jobs:
       matrix:
         os: [macos-latest]
     runs-on: ${{matrix.os}}
-      steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v2
-      - name: Set env
-        run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+    - name: Set env
+      run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 #          - name: 'Setup GraalVM'
 #            uses: DeLaGuardo/setup-graalvm@master
 #            with:
@@ -30,13 +30,13 @@ jobs:
 #            run: java -version && gu list -v && mvn --version && pwd
 #          - name: 'Build Image'
 #            run: mvn --batch-mode -Pnative clean package
-      - name: 'TEMP: dummy file'
-        run: echo 'dummy file' > target/receiver
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
-        with:
-          name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
-          path: target/receiver
+    - name: 'TEMP: dummy file'
+      run: echo 'dummy file' > target/receiver
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v2
+      with:
+        name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        path: target/receiver
 #  build-native:
 #    strategy:
 #      matrix:
