@@ -7,7 +7,7 @@ on:
     types:
       - created
 # TEMP
-  push:
+#  push:
 
 jobs:
   test-upload:
@@ -41,7 +41,7 @@ jobs:
       with:
         upload_url: ${{env.UPLOAD_URL}}
         asset_name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
-        asset_path: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        asset_path: target/receiver
         asset_content_type: application/octet-stream
 
 #  build-native:
