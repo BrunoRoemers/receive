@@ -13,7 +13,7 @@ jobs:
   test-upload:
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{matrix.os}}
     steps:
     - name: 'Checkout'
@@ -23,8 +23,6 @@ jobs:
     - name: 'Set UPLOAD_URL'
       if: contains(github.ref, 'tags')
       run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
-    - name: 'Echo vars'
-      run: echo $BUILD_REF && echo $RELEASE_ID && echo $UPLOAD_URL
     - name: 'TEMP: dummy file'
       run: mkdir target && echo 'dummy file' > target/receiver
     - name: 'Upload as Artifact'
@@ -40,7 +38,7 @@ jobs:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
         upload_url: ${{env.UPLOAD_URL}}
-        asset_name: receiver-${BUILD_REF}-${{matrix.os}}
+        asset_name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
         asset_path: target/receiver
         asset_content_type: application/octet-stream
 
