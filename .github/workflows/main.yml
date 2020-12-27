@@ -22,8 +22,6 @@ jobs:
     runs-on: ${{matrix.os}}
     env:
       IS_WINDOWS: ${{ contains(matrix.os, 'windows') }}
-      GU_COMMAND: ${{ env.IS_WINDOWS && 'gu.cmd' || 'gu' }}
-      NATIVE_IMAGE_FILE: ${{ env.IS_WINDOWS && 'receiver.exe' || 'receiver' }}
     steps:
     - name: 'Checkout'
       uses: actions/checkout@v2
@@ -34,6 +32,10 @@ jobs:
       run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
     - name: 'Set ARTIFACT_NAME'
       run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{matrix.os}}" >> $GITHUB_ENV
+    - name: 'Set GU_COMMAND'
+      run: echo "GU_COMMAND=${{ env.IS_WINDOWS && 'gu.cmd' || 'gu' }}" >> $GITHUB_ENV
+    - name: 'Set NATIVE_IMAGE_FILE'
+      run: echo "NATIVE_IMAGE_FILE=${{ env.IS_WINDOWS && 'receiver.exe' || 'receiver' }}" >> $GITHUB_ENV
     - name: 'Setup GraalVM'
       uses: DeLaGuardo/setup-graalvm@master
       with:
