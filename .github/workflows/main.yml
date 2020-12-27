@@ -46,6 +46,10 @@ jobs:
       run: java -version && $GU_COMMAND list -v && mvn --version && pwd
     - name: 'Build Image'
       run: mvn --batch-mode -Pnative clean package
+    - name: 'TEMP 1'
+      run: ls -la . && ls -la target
+    - name: 'TEMP 2'
+      run: tree
     - name: 'Upload as Artifact'
       if: success()
       uses: actions/upload-artifact@v2
