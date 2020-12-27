@@ -29,7 +29,7 @@ public class FileServiceImpl implements FileService {
   }
 
   @Autowired
-  public void setUploadsRoot(@Value("${receiver.uploadsRoot}") String uploadsRoot)
+  public void setUploadsRoot(@Value("${uploads-root}") String uploadsRoot)
   throws ConfigurationError {
     // replace ~/ with $HOME/
     String pathStr = uploadsRoot.replaceFirst("^~/", System.getProperty("user.home") + "/");
