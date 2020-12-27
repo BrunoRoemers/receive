@@ -24,4 +24,4 @@ jobs:
       - name: 'Print Version Info'
         run: java -version && gu list -v && mvn --version
       - name: 'Build Linux Image'
-          run: mvn --batch-mode -Pnative clean package
+        run: mvn --batch-mode -Pnative clean package
