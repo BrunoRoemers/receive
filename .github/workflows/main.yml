@@ -22,7 +22,7 @@ jobs:
       run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - name: 'Set UPLOAD_URL'
       if: contains(github.ref, 'tags')
-      run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
+      run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep upload_url | grep -o "http.*}")" >> $GITHUB_ENV
     - name: 'TEMP: dummy file'
       run: mkdir target && echo 'dummy file' > target/receiver
     - name: 'Upload as Artifact'
