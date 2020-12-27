@@ -10,7 +10,8 @@ on:
 #  push:
 
 defaults:
-  shell: bash
+  run:
+    shell: bash
 
 jobs:
   build-native-unix:
