@@ -8,27 +8,53 @@ on:
       - created
 
 jobs:
-  build-native:
+  test-setup:
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
         os: [macos-latest]
     runs-on: ${{matrix.os}}
-    steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v2
-      - name: 'Setup GraalVM'
-        uses: DeLaGuardo/setup-graalvm@master
-        with:
-          graalvm-version: 20.3.0.java11
-      - name: 'Install native-image'
-        run: gu install native-image
-      - name: 'Print Info'
-        run: java -version && gu list -v && mvn --version && pwd
-      - name: 'Build Image'
-        run: mvn --batch-mode -Pnative clean package
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
-        with:
-          name: receiver-${{github.ref}}-${{matrix.os}}
-          path: target/receiver
+      steps:
+          - name: 'Checkout'
+            uses: actions/checkout@v2
+          - name: Set env
+            run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+#          - name: 'Setup GraalVM'
+#            uses: DeLaGuardo/setup-graalvm@master
+#            with:
+#              graalvm-version: 20.3.0.java11
+#          - name: 'Install native-image'
+#            run: gu install native-image
+#          - name: 'Print Info'
+#            run: java -version && gu list -v && mvn --version && pwd
+#          - name: 'Build Image'
+#            run: mvn --batch-mode -Pnative clean package
+          - name: 'TEMP: dummy file'
+            run: echo 'dummy file' > target/receiver
+          - name: 'Upload Artifact'
+            uses: actions/upload-artifact@v2
+            with:
+              name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+              path: target/receiver
+#  build-native:
+#    strategy:
+#      matrix:
+#        os: [ubuntu-latest, macos-latest, windows-latest]
+#    runs-on: ${{matrix.os}}
+#    steps:
+#      - name: 'Checkout'
+#        uses: actions/checkout@v2
+#      - name: 'Setup GraalVM'
+#        uses: DeLaGuardo/setup-graalvm@master
+#        with:
+#          graalvm-version: 20.3.0.java11
+#      - name: 'Install native-image'
+#        run: gu install native-image
+#      - name: 'Print Info'
+#        run: java -version && gu list -v && mvn --version && pwd
+#      - name: 'Build Image'
+#        run: mvn --batch-mode -Pnative clean package
+#      - name: 'Upload Artifact'
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: receiver-${{github.ref}}-${{matrix.os}}
+#          path: target/receiver
