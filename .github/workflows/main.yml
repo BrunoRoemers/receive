@@ -20,6 +20,10 @@ jobs:
 #        os: [ubuntu-latest, macos-latest]
         os: [windows-latest]
     runs-on: ${{matrix.os}}
+    env:
+      IS_WINDOWS: ${{ contains(matrix.os, 'windows') }}
+      GU_COMMAND: ${{ env.IS_WINDOWS && 'gu.cmd' || 'gu' }}
+      NATIVE_IMAGE_FILE: ${{ env.IS_WINDOWS && 'receiver.exe' || 'receiver' }}
     steps:
     - name: 'Checkout'
       uses: actions/checkout@v2
@@ -30,13 +34,11 @@ jobs:
       run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
     - name: 'Set ARTIFACT_NAME'
       run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{matrix.os}}" >> $GITHUB_ENV
-    - name: 'Set GU_COMMAND'
-      run: echo "GU_COMMAND=$(which gu &>/dev/null && echo 'gu' || echo 'gu.cmd')" >> $GITHUB_ENV
     - name: 'Setup GraalVM'
       uses: DeLaGuardo/setup-graalvm@master
       with:
         graalvm-version: 20.3.0.java11
-    - name: 'Install native-image (unix)'
+    - name: 'Install native-image'
       run: $GU_COMMAND install native-image
     - name: 'Print Info'
       run: java -version && $GU_COMMAND list -v && mvn --version && pwd
@@ -47,7 +49,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{env.ARTIFACT_NAME}}
-        path: target/receiver
+        path: target/${{env.NATIVE_IMAGE_FILE}}
     - name: 'Upload as Release Asset'
       if: success() && env.UPLOAD_URL
       uses: actions/upload-release-asset@v1
@@ -56,7 +58,7 @@ jobs:
       with:
         upload_url: ${{env.UPLOAD_URL}}
         asset_name: ${{env.ARTIFACT_NAME}}
-        asset_path: target/receiver
+        asset_path: target/${{env.NATIVE_IMAGE_FILE}}
         asset_content_type: application/octet-stream
 
 #  build-native:
