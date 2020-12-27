@@ -26,14 +26,13 @@ public interface FileService {
      * @param uploadsRoot
      * @throws ConfigurationError if uploads root is not a directory
      */
-    void setUploadsRoot(String uploadsRoot)
-    throws ConfigurationError;
+    void setUploadsRoot(String uploadsRoot);
 
     /**
-     * Make sure uploadsRoot is a directory.
+     * Make sure path is a directory.
      * @throws ConfigurationError if check fails.
      */
-    void verifyUploadsRoot()
+    void verifyDirectory(Path directory)
     throws ConfigurationError;
 
     /**

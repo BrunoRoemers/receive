@@ -20,36 +20,39 @@ import java.util.function.Function;
 @Service
 public class FileServiceImpl implements FileService {
 
-  private Path uploadsRoot;
+  private String uploadsRoot;
 
   public Path getUploadsRoot()
   throws ConfigurationError {
-    verifyUploadsRoot();
-    return uploadsRoot;
-  }
+    // make sure uploads root was provided
+    if (uploadsRoot.isBlank()) throw new ConfigurationError("Uploads root is not configured");
 
-  @Autowired
-  public void setUploadsRoot(@Value("${uploads-root}") String uploadsRoot)
-  throws ConfigurationError {
     // replace ~/ with $HOME/
     String pathStr = uploadsRoot.replaceFirst("^~/", System.getProperty("user.home") + "/");
 
     // store normalized absolute path
-    this.uploadsRoot = Paths.get(pathStr).normalize().toAbsolutePath();
+    Path uploadsRootPath = Paths.get(pathStr).normalize().toAbsolutePath();
 
-    // verify
-    this.verifyUploadsRoot();
+    // make sure uploads root is a directory
+    verifyDirectory(uploadsRootPath);
+
+    return uploadsRootPath;
   }
 
-  public void verifyUploadsRoot() throws ConfigurationError {
+  @Autowired
+  public void setUploadsRoot(@Value("${uploads-root}") String uploadsRoot) {
+    this.uploadsRoot = uploadsRoot;
+  }
+
+  public void verifyDirectory(Path dir) throws ConfigurationError {
     // make sure uploads root exists
-    if (!Files.exists(this.uploadsRoot)) {
-      throw new ConfigurationError(String.format("%s does not exist", this.uploadsRoot));
+    if (!Files.exists(dir)) {
+      throw new ConfigurationError(String.format("%s does not exist", dir));
     }
 
     // make sure uploads root is a folder
-    if (!Files.isDirectory(this.uploadsRoot)) {
-      throw new ConfigurationError(String.format("%s is not a directory", this.uploadsRoot));
+    if (!Files.isDirectory(dir)) {
+      throw new ConfigurationError(String.format("%s is not a directory", dir));
     }
   }
 
