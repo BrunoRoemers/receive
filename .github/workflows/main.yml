@@ -1,3 +1,5 @@
+# adapted from: https://blogs.oracle.com/developers/building-cross-platform-native-images-with-graalvm
+
 name: Build Native Images
 
 on:
@@ -21,7 +23,12 @@ jobs:
           graalvm-version: 20.3.0.java11
       - name: 'Install native-image'
         run: gu install native-image
-      - name: 'Print Version Info'
-        run: java -version && gu list -v && mvn --version
-      - name: 'Build Linux Image'
+      - name: 'Print Info'
+        run: java -version && gu list -v && mvn --version && pwd
+      - name: 'Build Image'
         run: mvn --batch-mode -Pnative clean package
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: receiver-${{github.ref}}-${{matrix.os}}
+          path: target/receiver
