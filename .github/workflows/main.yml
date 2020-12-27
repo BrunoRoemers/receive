@@ -10,47 +10,65 @@ on:
   push:
 
 jobs:
-#  test-upload:
-#    strategy:
-#      matrix:
-#        os: [macos-latest]
-#    runs-on: ${{matrix.os}}
-#    steps:
-#    - name: 'Checkout'
-#      uses: actions/checkout@v2
-#    - name: 'Set env'
-#      run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-#    - name: 'TEMP: dummy file'
-#      run: mkdir target && echo 'dummy file' > target/receiver
-#    - name: 'Upload Artifact'
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
-#        path: target/receiver
-
-  build-native:
+  test-upload:
     strategy:
       matrix:
         os: [macos-latest]
-#        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{matrix.os}}
     steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v2
-      - name: 'Set env'
-        run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: 'Setup GraalVM'
-        uses: DeLaGuardo/setup-graalvm@master
-        with:
-          graalvm-version: 20.3.0.java11
-      - name: 'Install native-image'
-        run: gu install native-image
-      - name: 'Print Info'
-        run: java -version && gu list -v && mvn --version && pwd
-      - name: 'Build Image'
-        run: mvn --batch-mode -Pnative clean package
-      - name: 'Upload Artifact'
-        uses: actions/upload-artifact@v2
-        with:
-          name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
-          path: target/receiver
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+    - name: 'Set BUILD_REF'
+      run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - name: 'Set RELEASE_ID'
+      run: echo "RELEASE_ID=${{github.event.release.release_id}}" >> $GITHUB_ENV
+    - name: 'Set UPLOAD_URL'
+      if: contains(env.GITHUB_REF, 'tags')
+      run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*assets")" >> $GITHUB_ENV
+    - name: 'Echo vars'
+      run: echo $BUILD_REF && echo $RELEASE_ID && echo $UPLOAD_URL
+    - name: 'TEMP: dummy file'
+      run: mkdir target && echo 'dummy file' > target/receiver
+    - name: 'Upload as Artifact'
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        path: target/receiver
+    - name: 'Upload as Release Asset'
+      if: success() && env.UPLOAD_URL != null
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        upload_url: ${{env.UPLOAD_URL}}
+        asset_name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        asset_path: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+        asset_content_type: application/octet-stream
+
+#  build-native:
+#    strategy:
+#      matrix:
+#        os: [macos-latest]
+##        os: [ubuntu-latest, macos-latest, windows-latest]
+#    runs-on: ${{matrix.os}}
+#    steps:
+#      - name: 'Checkout'
+#        uses: actions/checkout@v2
+#      - name: 'Set env'
+#        run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+#      - name: 'Setup GraalVM'
+#        uses: DeLaGuardo/setup-graalvm@master
+#        with:
+#          graalvm-version: 20.3.0.java11
+#      - name: 'Install native-image'
+#        run: gu install native-image
+#      - name: 'Print Info'
+#        run: java -version && gu list -v && mvn --version && pwd
+#      - name: 'Build Image'
+#        run: mvn --batch-mode -Pnative clean package
+#      - name: 'Upload Artifact'
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
+#          path: target/receiver
