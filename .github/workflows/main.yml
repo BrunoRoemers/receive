@@ -9,11 +9,15 @@ on:
 # TEMP
 #  push:
 
+defaults:
+  shell: bash
+
 jobs:
   build-native-unix:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+#        os: [ubuntu-latest, macos-latest]
+        os: [windows-latest]
     runs-on: ${{matrix.os}}
     steps:
     - name: 'Checkout'
