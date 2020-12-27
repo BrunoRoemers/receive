@@ -31,7 +31,7 @@ jobs:
 #          - name: 'Build Image'
 #            run: mvn --batch-mode -Pnative clean package
     - name: 'TEMP: dummy file'
-      run: echo 'dummy file' > target/receiver
+      run: mkdir target && echo 'dummy file' > target/receiver
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v2
       with:
