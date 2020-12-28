@@ -11,14 +11,14 @@ on:
 
 defaults:
   run:
+    # use bash (from git) on windows
     shell: bash
 
 jobs:
-  build-native-unix:
+  build-native:
     strategy:
       matrix:
-#        os: [ubuntu-latest, macos-latest]
-        os: [windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{matrix.os}}
     env:
       IS_WINDOWS: ${{ contains(matrix.os, 'windows') }}
@@ -47,17 +47,10 @@ jobs:
     - name: 'Build Image (unix)'
       if: env.IS_WINDOWS == 'false'
       run: mvn --batch-mode -Pnative clean package
-    - name: 'TEMP WIN'
-      shell: cmd
-      run: echo %JAVA_HOME%
     - name: 'Build Image (windows)'
       if: env.IS_WINDOWS == 'true'
       shell: cmd
       run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat" && mvn --batch-mode -Pnative clean package
-    - name: 'TEMP 1'
-      run: ls -la . && ls -la target
-    - name: 'TEMP 2'
-      run: tree
     - name: 'Upload as Artifact'
       if: success()
       uses: actions/upload-artifact@v2
@@ -74,30 +67,3 @@ jobs:
         asset_name: ${{env.ARTIFACT_NAME}}
         asset_path: target/${{env.NATIVE_IMAGE_FILE}}
         asset_content_type: application/octet-stream
-
-#  build-native:
-#    strategy:
-#      matrix:
-#        os: [macos-latest]
-##        os: [ubuntu-latest, macos-latest, windows-latest]
-#    runs-on: ${{matrix.os}}
-#    steps:
-#      - name: 'Checkout'
-#        uses: actions/checkout@v2
-#      - name: 'Set env'
-#        run: echo "BUILD_REF=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-#      - name: 'Setup GraalVM'
-#        uses: DeLaGuardo/setup-graalvm@master
-#        with:
-#          graalvm-version: 20.3.0.java11
-#      - name: 'Install native-image'
-#        run: gu install native-image
-#      - name: 'Print Info'
-#        run: java -version && gu list -v && mvn --version && pwd
-#      - name: 'Build Image'
-#        run: mvn --batch-mode -Pnative clean package
-#      - name: 'Upload Artifact'
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: receiver-${{env.BUILD_REF}}-${{matrix.os}}
-#          path: target/receiver
