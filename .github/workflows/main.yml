@@ -45,13 +45,13 @@ jobs:
     - name: 'Print Info'
       run: java -version && $GU_COMMAND list -v && mvn --version && pwd
     - name: 'Build Image (unix)'
-      if: env.IS_WINDOWS == 0
+      if: env.IS_WINDOWS == 'false'
       run: mvn --batch-mode -Pnative clean package
     - name: 'TEMP WIN'
       shell: cmd
       run: echo %JAVA_HOME%
     - name: 'Build Image (windows)'
-      if: env.IS_WINDOWS == 1
+      if: env.IS_WINDOWS == 'true'
       shell: cmd
       run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat" mvn --batch-mode -Pnative clean package
     - name: 'TEMP 1'
