@@ -45,7 +45,7 @@ jobs:
     - name: 'Print Info'
       run: java -version && $GU_COMMAND list -v && mvn --version && pwd
     - name: 'Build Image (unix)'
-      if: !env.IS_WINDOWS
+      if: ! env.IS_WINDOWS
       run: mvn --batch-mode -Pnative clean package
     - name: 'TEMP WIN'
       shell: cmd
