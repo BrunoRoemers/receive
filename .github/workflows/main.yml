@@ -53,7 +53,7 @@ jobs:
     - name: 'Build Image (windows)'
       if: env.IS_WINDOWS == 'true'
       shell: cmd
-      run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat" mvn --batch-mode -Pnative clean package
+      run: call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat" && mvn --batch-mode -Pnative clean package
     - name: 'TEMP 1'
       run: ls -la . && ls -la target
     - name: 'TEMP 2'
