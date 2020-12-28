@@ -33,9 +33,9 @@ jobs:
     - name: 'Set ARTIFACT_NAME'
       run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{matrix.os}}" >> $GITHUB_ENV
     - name: 'Set GU_COMMAND'
-      run: echo "GU_COMMAND=${{ env.IS_WINDOWS && 'gu.cmd' || 'gu' }}" >> $GITHUB_ENV
+      run: echo "GU_COMMAND=${{ env.IS_WINDOWS == 'true' && 'gu.cmd' || 'gu' }}" >> $GITHUB_ENV
     - name: 'Set NATIVE_IMAGE_FILE'
-      run: echo "NATIVE_IMAGE_FILE=${{ env.IS_WINDOWS && 'receiver.exe' || 'receiver' }}" >> $GITHUB_ENV
+      run: echo "NATIVE_IMAGE_FILE=${{ env.IS_WINDOWS == 'true' && 'receiver.exe' || 'receiver' }}" >> $GITHUB_ENV
     - name: 'Setup GraalVM'
       uses: DeLaGuardo/setup-graalvm@master
       with:
