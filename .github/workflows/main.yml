@@ -31,7 +31,7 @@ jobs:
       if: contains(github.ref, 'tags')
       run: echo "UPLOAD_URL=$(curl -s https://api.github.com/repos/BrunoRoemers/receiver/releases/tags/${{env.BUILD_REF}} | grep \"upload_url\" | grep -o "http.*}")" >> $GITHUB_ENV
     - name: 'Set ARTIFACT_NAME'
-      run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{matrix.os}}${{ env.IS_WINDOWS == 'true' && '.exe'}}" >> $GITHUB_ENV
+      run: echo "ARTIFACT_NAME=receiver-$BUILD_REF-${{ matrix.os }}${{ env.IS_WINDOWS == 'true' && '.exe' || '' }}" >> $GITHUB_ENV
     - name: 'Set GU_COMMAND'
       run: echo "GU_COMMAND=${{ env.IS_WINDOWS == 'true' && 'gu.cmd' || 'gu' }}" >> $GITHUB_ENV
     - name: 'Set NATIVE_IMAGE_FILE'
