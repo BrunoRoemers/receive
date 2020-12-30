@@ -27,16 +27,25 @@ public class FileServiceImpl implements FileService {
     // make sure uploads root was provided
     if (uploadsRoot.isBlank()) throw new ConfigurationError("Uploads root is not configured");
 
-    // replace ~/ with $HOME/
-    String pathStr = uploadsRoot.replaceFirst("^~/", System.getProperty("user.home") + "/");
-
-    // store normalized absolute path
-    Path uploadsRootPath = Paths.get(pathStr).normalize().toAbsolutePath();
+    // replace ~/
+    Path uploadsRootPath = expandTilde(Paths.get(uploadsRoot));
 
     // make sure uploads root is a directory
     verifyDirectory(uploadsRootPath);
 
     return uploadsRootPath;
+  }
+
+  public Path expandTilde(Path path) {
+    Path homePath = Paths.get(System.getProperty("user.home"));
+    Path tildePath = Paths.get("~");
+
+    // about if path does not start with ~/
+    if (!path.startsWith(tildePath)) return path;
+
+    // substitute ~/ for user's home directory
+    Path relativePath = path.subpath(1, path.getNameCount());
+    return homePath.resolve(relativePath);
   }
 
   @Autowired

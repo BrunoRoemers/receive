@@ -21,6 +21,13 @@ public interface FileService {
     throws ConfigurationError;
 
     /**
+     * Unix-style home directory expansion
+     * @param path may or may not start with ~/
+     * @return path where ~/ is replaced with the user's home directory
+     */
+    Path expandTilde(Path path);
+
+    /**
      * initialize the uploads root for this service.
      * (E.g. using Spring dependency injection.)
      * @param uploadsRoot
