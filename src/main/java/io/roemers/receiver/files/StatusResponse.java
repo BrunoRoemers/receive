@@ -12,10 +12,6 @@ public class StatusResponse {
     public String requestMethod;
     public String requestURI;
 
-    public StatusResponse(HttpServletRequest req, HttpStatus statusCode) {
-        this(req, statusCode, null);
-    }
-
     public StatusResponse(HttpServletRequest req, HttpStatus statusCode, String message) {
         this.message = message;
         this.statusCode = statusCode.toString();
