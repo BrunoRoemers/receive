@@ -30,7 +30,7 @@ public class FilesController {
       value = "/**",
       consumes = {"multipart/form-data"}
     )
-    public ResponseEntity<?> acceptData(
+    public StatusResponse acceptData(
       HttpServletRequest req,
       @RequestParam("file") MultipartFile file
     ) throws ConfigurationError, PathParseError, NoFileError, MaskedError {
@@ -40,7 +40,7 @@ public class FilesController {
         );
 
         // security: standard response
-        ResponseEntity<?> resp = new ResponseEntity<>("received", HttpStatus.OK);
+        StatusResponse resp = new StatusResponse(req, HttpStatus.OK, "received");
 
         try {
           fileService.saveFile(file, path);

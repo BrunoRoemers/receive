@@ -1,5 +1,7 @@
 package io.roemers.receiver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,13 +14,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @SpringBootApplication(proxyBeanMethods = false)
 public class ReceiverApplication {
 
+    private final ObjectMapper mapper;
+
 	public static void main(String[] args) {
 		SpringApplication.run(ReceiverApplication.class, args);
 	}
 
+	ReceiverApplication(ObjectMapper mapper) {
+	    this.mapper = mapper;
+    }
+
 	@GetMapping("/")
-	public String test() {
-		return "Receiver is running!";
+	public ObjectNode test() {
+        ObjectNode res = mapper.createObjectNode();
+        res.put("message", "Receiver is running!");
+        return res;
   }
 
   @Bean

@@ -1,5 +1,7 @@
 package io.roemers.receiver.errors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.roemers.receiver.files.StatusResponse;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +16,15 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@ControllerAdvice
 @RestController
-public class ErrorHandler implements ErrorController {
+@ControllerAdvice
+public class ReceiverControllerAdvice implements ErrorController {
 
     /**
      * Mask certain errors with provided response
      */
     @ExceptionHandler(MaskedError.class)
-    public ResponseEntity<?> maskedErrorHandler(MaskedError error) {
+    public Object maskedErrorHandler(MaskedError error) {
         error.printStackTrace();
         return error.response;
     }
@@ -31,76 +33,49 @@ public class ErrorHandler implements ErrorController {
      * Uploaded file too big
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<?> largeFileErrorHandler(HttpServletRequest req, MaxUploadSizeExceededException error) {
+    public StatusResponse largeFileErrorHandler(HttpServletRequest req, MaxUploadSizeExceededException error) {
       error.printStackTrace();
-      return errorResponse(req, HttpStatus.BAD_REQUEST, "Uploaded file is too big");
+      return new StatusResponse(req, HttpStatus.BAD_REQUEST, "Uploaded file is too big");
     }
 
     /**
      * Could not parse path from uri
      */
     @ExceptionHandler(PathParseError.class)
-    public ResponseEntity<?> pathParseErrorHandler(HttpServletRequest req, PathParseError error) {
+    public StatusResponse pathParseErrorHandler(HttpServletRequest req, PathParseError error) {
       error.printStackTrace();
-      return errorResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
+      return new StatusResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
     }
 
     /**
      * Missing multipart fragment
      */
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<?> missingMultipartFragmentErrorHandler(
+    public StatusResponse missingMultipartFragmentErrorHandler(
       HttpServletRequest req, MissingServletRequestPartException error
     ) {
       error.printStackTrace();
-      return errorResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
+      return new StatusResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
     }
 
     /**
      * Provided file is empty
      */
     @ExceptionHandler(NoFileError.class)
-    public ResponseEntity<?> noFileErrorHandler(HttpServletRequest req, NoFileError error) {
+    public StatusResponse noFileErrorHandler(HttpServletRequest req, NoFileError error) {
       error.printStackTrace();
-      return errorResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
+      return new StatusResponse(req, HttpStatus.BAD_REQUEST, error.getLocalizedMessage());
     }
 
     /**
      * Default error handling
      */
     @RequestMapping("${server.error.path:${error.path:/error}}")
-    public ResponseEntity<?> handleError(HttpServletRequest req, HttpServletResponse res) {
+    public StatusResponse handleError(HttpServletRequest req, HttpServletResponse res) {
         // publicly expose simple error message
         // NOTE: spring already logs stacktrace in console
         HttpStatus statusCode = HttpStatus.valueOf(res.getStatus());
-        return errorResponse(req, statusCode);
-    }
-
-    protected ResponseEntity<?> errorResponse(HttpServletRequest req, HttpStatus statusCode) {
-      return errorResponse(req, statusCode, null);
-    }
-
-    /**
-     * Print a standard error response. The http method and request uri are taken
-     * from the request object. The status code can be customized. An optional
-     * message can be added.
-     */
-    protected ResponseEntity<?> errorResponse(HttpServletRequest req, HttpStatus statusCode, String message) {
-      // get request URI
-      String requestURI = (String) req.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-      if (requestURI == null || requestURI.isBlank()) {
-        requestURI = req.getRequestURI();
-      }
-
-      // standard message
-      String msg = String.format("%s %s : %s", req.getMethod(), requestURI, statusCode);
-
-      // append custom message
-      if (message != null && !message.isBlank()) {
-        msg = String.format("%s : %s", msg, message);
-      }
-
-      return new ResponseEntity<String>(msg, statusCode);
+        return new StatusResponse(req, statusCode);
     }
 
     /**
